@@ -42,13 +42,13 @@ class Departamento:
         return f"ID: {self.id} - Nombre: {self.nombre}"
 
 def mostrar_menu():
-    """
-    METROART
-    """
-    print("\n--- Catálogo---")
-    print("1. Buscar obras por Departamento")
-    print("2. Buscar obras por Nacionalidad del Autor")
-    print("3. Buscar obras por Nombre del Autor")
+    
+    print("----------METROART--------")
+
+    print("\n--- Catálogo MetroArt ---")
+    print("1. Ver lista de obras por Departamento")
+    print("2. Ver lista de obras por Nacionalidad del Autor")
+    print("3. Ver lista de obras por Nombre del Autor")
     print("4. Mostrar detalles de una obra por ID")
     print("5. Salir")
     print("--------------------------")
