@@ -45,7 +45,7 @@ class Departamento:
 class MetroArtAPIClient:
     BASE_URL = "https://collectionapi.metmuseum.org/public/collection/v1"
 
-    def _make_request(self, endpoint, params=None):
+    def conexion_api(self, endpoint, params=None):
         url = f"{self.BASE_URL}{endpoint}"
         try:
             response = requests.get(url, params=params)
@@ -55,51 +55,8 @@ class MetroArtAPIClient:
             print(f"Error al conectar con la API en {url}: {e}")
             return None
 
-    def get_all_departments(self):
-        data = self._make_request("/departments")
-        if data and "departments" in data:
-            lista_departamentos = []
-            for d in data["departments"]:
-                nuevo_departamento = Departamento(
-                    id=d["departmentId"],
-                    nombre=d["displayName"]
-                )
-                lista_departamentos.append(nuevo_departamento)
-            return lista_departamentos
-        return []
 
-    def get_object_ids_by_department(self, department_id):
-        params = {"departmentId": department_id, "hasImages": "true"}
-        data = self._make_request("/objects", params=params)
-        if data and "objectIDs" in data:
-            return data["objectIDs"]
-        return []
     
-    def search_object_ids(self, query):
-        params = {"q": query, "hasImages": "true"}
-        data = self._make_request("/search", params=params)
-        if data and "objectIDs" in data:
-            return data["objectIDs"]
-        return []
-
-    def get_object_details(self, object_id):
-        data = self._make_request(f"/objects/{object_id}")
-        if data and data.get("objectID"):
-            obra_de_arte = ObraDeArte(
-                id=data.get("objectID"),
-                titulo=data.get("title", "Desconocido"),
-                nombre_artista=data.get("artistDisplayName", "Desconocido"),
-                nacionalidad_artista=data.get("artistNationality", "Desconocida"),
-                fecha_nacimiento_artista=data.get("artistBeginDate", "N/A"),
-                fecha_muerte_artista=data.get("artistEndDate", "N/A"),
-                tipo=data.get("classification", "Desconocido"),
-                anio_creacion=data.get("objectDate", "N/A"),
-                url_imagen=data.get("primaryImage", ""),
-                departamento=data.get("department", "Desconocido")
-            )
-            return obra_de_arte
-        return None
-
 def mostrar_menu():
     
     print("----------METROART--------")
