@@ -122,8 +122,8 @@ class MetroArtAPIClient:
             return data["objectIDs"]
         return []
     
-    def buscar_objeto_por_id(self, query):
-        params = {"q": query, "hasImages": "true"}
+    def buscar_objeto_por_id(self, id):
+        params = {"q": id, "hasImages": "true"}
         data = self.conexion_api("/search", params=params)
         if data and "objectIDs" in data:
             return data["objectIDs"]
@@ -180,7 +180,37 @@ def buscar_por_departamento(client):
 
     except ValueError:
         print("introduzca una opcion correcta")
+    
+def buscar_por_nacionalidad(client):
+    nacionalidad = input("Ingrese la nacionalidad del autor: ").strip()
+    if not nacionalidad:
+        print("Debe ingresar una nacionalidad valida")
+        return
+    nacionalidad_lower = nacionalidad.lower()
+    print(f"\nBuscando obras de artistas con nacionalidad: '{nacionalidad}'...")
+    object_ids = client.buscar_objeto_por_id(nacionalidad)
+    
+    if not object_ids:
+        print("No se encontraron obras para esa nacionalidad.")
+        return
+    resultados_filtrados = []
+    for obj_id in object_ids:
+        obra = client.obtener_detalles_objeto(obj_id)
         
+        if obra and obra.nacionalidad_artista:
+            nacionalidades_en_obra = [n.strip().lower() for n in obra.nacionalidad_artista.split(',')]
+            if nacionalidad_lower in nacionalidades_en_obra:
+                resultados_filtrados.append(obra)
+
+    if not resultados_filtrados:
+        print("No se encontraron obras de artistas con esa nacionalidad después de la búsqueda detallada.")
+        return
+    print(f"Se encontraron {len(resultados_filtrados)} obras. Mostrando las primeras 10:")
+    for obra_filtrada in resultados_filtrados[:10]:
+        print("-------------------------------")
+        print(obra_filtrada)
+    print("----------------------------------")
+    
         
 def mostrar_menu():
     
@@ -203,7 +233,7 @@ def main():
         if opcion == '1':
             buscar_por_departamento(creando_objetos)
         elif opcion == '2':
-            #buscar_por_nacionalidad()
+            buscar_por_nacionalidad(creando_objetos)
             print("")
         elif opcion == '3':
             #buscar_por_autor()
