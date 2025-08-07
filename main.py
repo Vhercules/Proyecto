@@ -182,36 +182,27 @@ def buscar_por_departamento(client):
         print("introduzca una opcion correcta")
     
 def buscar_por_nacionalidad(client):
-    nacionalidad = input("Ingrese la nacionalidad del autor: ").strip()
+    nacionalidad = input("Ingrese la nacionalidad del autor (ej. 'American'): ").strip()
     if not nacionalidad:
-        print("Debe ingresar una nacionalidad valida")
+        print("Debe ingresar una nacionalidad.")
         return
-    nacionalidad_lower = nacionalidad.lower()
-    print(f"\nBuscando obras de artistas con nacionalidad: '{nacionalidad}'...")
-    object_ids = client.buscar_objeto_por_id(nacionalidad)
+
+    print(f"\nBuscando obras de artistas con nacionalidad '{nacionalidad}'...")
+    query = f"artistNationality={nacionalidad}"
+    object_ids = client.buscar_objeto_por_id(query)
     
     if not object_ids:
         print("No se encontraron obras para esa nacionalidad.")
         return
-    resultados_filtrados = []
-    for obj_id in object_ids:
-        obra = client.obtener_detalles_objeto(obj_id)
-        
-        if obra and obra.nacionalidad_artista:
-            nacionalidades_en_obra = [n.strip().lower() for n in obra.nacionalidad_artista.split(',')]
-            if nacionalidad_lower in nacionalidades_en_obra:
-                resultados_filtrados.append(obra)
 
-    if not resultados_filtrados:
-        print("No se encontraron obras de artistas con esa nacionalidad después de la búsqueda detallada.")
-        return
-    print(f"Se encontraron {len(resultados_filtrados)} obras. Mostrando las primeras 10:")
-    for obra_filtrada in resultados_filtrados[:10]:
-        print("-------------------------------")
-        print(obra_filtrada)
-    print("----------------------------------")
-    
-        
+    print(f"Se encontraron {len(object_ids)} obras. Mostrando las primeras 20:")
+    for obj_id in object_ids[:20]:
+        obra = client.obtener_detalles_objeto(obj_id)
+        if obra:
+            print("---------------------------------")
+            print(obra)
+    print("-------------------------------")
+
 def mostrar_menu():
     
     print("----------METROART--------")
@@ -250,3 +241,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
