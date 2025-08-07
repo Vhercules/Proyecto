@@ -32,6 +32,20 @@ def guardar_imagen_desde_url(url, nombre_archivo):
         print(f"Error al escribir el archivo: {e}")
     return None
 
+
+def mostrar_imagen(file_path):
+    
+    if not file_path:
+        print("No se dió un nombre de archivo para mostrar.")
+        return
+
+    try:
+        img = Image.open(file_path)
+        img.show()
+    except Exception as e:
+        print(f"Ocurrió un error al intentar mostrar la imagen: {e}")
+        
+        
 class ObraDeArte:
     def __init__(self, id, titulo, nombre_artista, nacionalidad_artista,
                  fecha_nacimiento_artista, fecha_muerte_artista,
