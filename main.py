@@ -146,7 +146,42 @@ class MetroArtAPIClient:
             )
             return obra_de_arte
         return None
-    
+
+def buscar_por_departamento(client):
+    departamentos = client.obtener_apartamentos()
+    if not departamentos:
+        print("No se pudieron obtener los departamentos")
+        return
+
+    print("\n--- Departamentos disponibles ---")
+    for d in departamentos:
+        print(d)
+
+    try:
+        dep_id = int(input("Ingrese el ID del departamento que desee: "))
+        if not any(d.id == dep_id for d in departamentos):
+            print("Seleccione un Id valido")
+            return
+
+        print(f"\nBuscando obras en el departamento con ID: {dep_id}...")
+        object_ids = client.obtener_apartamentos_por_id(dep_id)
+        
+        if not object_ids:
+            print("No se encontraron obras con imágenes en ese departamento.")
+            return
+        
+        print(f"Se encontraron {len(object_ids)} obras. Mostrando las primeras 20:")
+        for obj_id in object_ids[:20]:
+            obra = client.obtener_detalles_objeto(obj_id)
+            if obra:
+                print("---------------------------------------------")
+                print(obra)
+        print("---------------------------------------------------")
+
+    except ValueError:
+        print("introduzca una opcion correcta")
+        
+        
 def mostrar_menu():
     
     print("----------METROART--------")
@@ -165,20 +200,23 @@ def main():
     while True:
         mostrar_menu()
         opcion = input("Ingrese el número de la opción deseada: ")
-"""
         if opcion == '1':
-            #buscar_por_departamento()
+            buscar_por_departamento(creando_objetos)
         elif opcion == '2':
             #buscar_por_nacionalidad()
+            print("")
         elif opcion == '3':
             #buscar_por_autor()
+            print("")
         elif opcion == '4':
             #mostrar_detalles_obra()
+            print("")
         elif opcion == '5':
             #print("\nSaliendo del Catálogo MetroArt. Hasta luego, vuelva pronto")
+            print("")
             break
         else:
             print("\nSeleccione una opcion valida")
-"""
+
 if __name__ == "__main__":
     main()
