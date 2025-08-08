@@ -226,6 +226,26 @@ def buscar_por_autor(client):
             print(obra)
     print("-----------------------" )
     
+def mostrar_detalles_obra(client):
+    try:
+        obra_id = int(input("Ingrese el ID de la obra de arte: "))
+        print(f"\nBuscando detalles de la obra con ID {obra_id}...")
+        obra = client.obtener_detalles_objeto(obra_id)
+        
+        if obra:
+            obra.mostrar_detalles()
+            if obra.url_imagen:
+                opcion_imagen = input("¿Desea ver la imagen? (s/n): ").lower()
+                if opcion_imagen == 's':
+                    nombre_archivo = guardar_imagen_desde_url(obra.url_imagen, f"obra_{obra_id}")
+                    if nombre_archivo:
+                        mostrar_imagen(nombre_archivo)
+            else:
+                print("Esta obra no tiene una imagen principal disponible.")
+        else:
+            print(f"No se encontraron detalles para la obra con ID {obra_id}.")
+    except ValueError:
+        print("Entrada no válida. Por favor, ingrese un ID numérico.")
    
 def mostrar_menu():
     
@@ -254,10 +274,10 @@ def main():
             buscar_por_autor(creando_objetos)
             print("")
         elif opcion == '4':
-            #mostrar_detalles_obra()
+            mostrar_detalles_obra(creando_objetos)
             print("")
         elif opcion == '5':
-            #print("\nSaliendo del Catálogo MetroArt. Hasta luego, vuelva pronto")
+            print("\nSaliendo del Catálogo MetroArt. Hasta luego, vuelva pronto")
             print("")
             break
         else:
@@ -265,4 +285,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
