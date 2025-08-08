@@ -1,9 +1,17 @@
 import requests
 from PIL import Image
 
-
 def guardar_imagen_desde_url(url, nombre_archivo):
+    """
+    Descarga una imagen desde una URL y la guarda localmente con un nombre específico.
 
+    Args:
+        url (str): La URL de la imagen a descargar.
+        nombre_archivo (str): El nombre base con el que se guardará el archivo.
+
+    Returns:
+        str: El nombre completo del archivo guardado (ej. 'nombre.jpg') o None si falla.
+    """
     try:
         response = requests.get(url, stream=True)
         response.raise_for_status()  # Lanza una excepción para códigos de estado de error (4xx o 5xx)
@@ -34,7 +42,12 @@ def guardar_imagen_desde_url(url, nombre_archivo):
 
 
 def mostrar_imagen(file_path):
-    
+    """
+    Abre y muestra una imagen desde una ruta de archivo local utilizando Pillow.
+
+    Args:
+        file_path (str): La ruta del archivo de imagen a mostrar.
+    """
     if not file_path:
         print("No se dió un nombre de archivo para mostrar.")
         return
@@ -42,14 +55,35 @@ def mostrar_imagen(file_path):
     try:
         img = Image.open(file_path)
         img.show()
-    except Exception as e:
-        print(f"Ocurrió un error al intentar mostrar la imagen: {e}")
+    except Exception as error:
+        print(f"Ocurrió un error al intentar mostrar la imagen: {error}")
         
         
 class ObraDeArte:
+    """
+    Clase para representar una obra de arte del Met Museum.
+    
+    Guarda información detallada sobre una obra, como título, artista,
+    nacionalidad, año, etc.
+    """
     def __init__(self, id, titulo, nombre_artista, nacionalidad_artista,
                  fecha_nacimiento_artista, fecha_muerte_artista,
                  tipo, anio_creacion, url_imagen, departamento):
+        """
+        Inicializa una instancia de ObraDeArte.
+
+        Args:
+            id (int): El ID único de la obra.
+            titulo (str): El título de la obra.
+            nombre_artista (str): El nombre del artista.
+            nacionalidad_artista (str): La nacionalidad del artista.
+            fecha_nacimiento_artista (str): La fecha de nacimiento del artista.
+            fecha_muerte_artista (str): La fecha de muerte del artista.
+            tipo (str): La clasificación o tipo de la obra.
+            anio_creacion (str): El año de creación de la obra.
+            url_imagen (str): La URL de la imagen principal.
+            departamento (str): El departamento al que pertenece la obra.
+        """
         self.id = id
         self.titulo = titulo
         self.nombre_artista = nombre_artista
@@ -62,19 +96,28 @@ class ObraDeArte:
         self.departamento = departamento
 
     def __str__(self):
+        """
+        Devuelve una representación en cadena de la obra, adecuada para ser impresa en una lista.
+
+        Returns:
+            str: Una cadena formateada con la información básica de la obra.
+        """
         return (f"ID: {self.id}\n"
                 f"Título: {self.titulo}\n"
                 f"Artista: {self.nombre_artista} ({self.nacionalidad_artista})\n"
                 f"Departamento: {self.departamento}")
 
     def mostrar_detalles(self):
+        """
+        Imprime todos los detalles de la obra de arte en la consola.
+        """
         print("\n--- Detalles de la Obra ---")
         print(f"ID: {self.id}")
         print(f"Título: {self.titulo}")
         print(f"Artista: {self.nombre_artista}")
-        print(f"  Nacionalidad: {self.nacionalidad_artista}")
-        print(f"  Fecha de nacimiento: {self.fecha_nacimiento_artista}")
-        print(f"  Fecha de muerte: {self.fecha_muerte_artista}")
+        print(f"   Nacionalidad: {self.nacionalidad_artista}")
+        print(f"   Fecha de nacimiento: {self.fecha_nacimiento_artista}")
+        print(f"   Fecha de muerte: {self.fecha_muerte_artista}")
         print(f"Departamento: {self.departamento}")
         print(f"Tipo: {self.tipo}")
         print(f"Año de creación: {self.anio_creacion}")
@@ -82,20 +125,50 @@ class ObraDeArte:
         print("--------------------------")
 
 class Departamento:
+    """
+    Clase para representar un departamento del Met Museum.
+    """
     def __init__(self, id, nombre):
+        """
+        Inicializa una instancia de Departamento.
+
+        Args:
+            id (int): El ID único del departamento.
+            nombre (str): El nombre del departamento.
+        """
         self.id = id
         self.nombre = nombre
 
     def __str__(self):
+        """
+        Devuelve una representación en cadena del departamento.
+
+        Returns:
+            str: Una cadena formateada con el ID y nombre del departamento.
+        """
         return f"ID: {self.id} - Nombre: {self.nombre}"
 
 class MetroArtAPIClient:
+    """
+    Clase cliente para interactuar con la API pública del Met Museum.
+    
+    Proporciona métodos para obtener departamentos, buscar obras y obtener sus detalles.
+    """
     BASE_URL = "https://collectionapi.metmuseum.org/public/collection/v1"
 
-    def conexion_api(self, endpoint, params=None):
+    def conexion_api(self, endpoint):
+        """
+        Método para realizar solicitudes HTTP a la API del Met Museum.
+
+        Args:
+            endpoint (str): El punto final de la API a consultar.
+
+        Returns:
+            dict: Los datos JSON de la respuesta o None si ocurre un error.
+        """
         url = f"{self.BASE_URL}{endpoint}"
         try:
-            response = requests.get(url, params=params)
+            response = requests.get(url)
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
@@ -103,6 +176,12 @@ class MetroArtAPIClient:
             return None
 
     def obtener_apartamentos(self):
+        """
+        Obtiene una lista de todos los departamentos disponibles en la colección.
+
+        Returns:
+            list: Una lista de objetos `Departamento` o una lista vacía si falla.
+        """
         data = self.conexion_api("/departments")
         if data and "departments" in data:
             lista_departamentos = []
@@ -116,20 +195,75 @@ class MetroArtAPIClient:
         return []
 
     def obtener_apartamentos_por_id(self, department_id):
+        """
+        Obtiene los IDs de las obras de arte con imágenes en un departamento específico.
+
+        Args:
+            department_id (int): El ID del departamento.
+
+        Returns:
+            list: Una lista de IDs de obras (enteros) o una lista vacía.
+        """
         params = {"departmentId": department_id, "hasImages": "true"}
         data = self.conexion_api("/objects", params=params)
         if data and "objectIDs" in data:
             return data["objectIDs"]
         return []
     
-    def buscar_objeto_por_id(self, id):
-        params = {"q": id, "hasImages": "true"}
-        data = self.conexion_api("/search", params=params)
+    def buscar_objeto_por_id(self, query):
+        """
+        Realiza una búsqueda general de obras de arte por una palabra clave.
+
+        Args:
+            query (str): La palabra clave para buscar obras.
+
+        Returns:
+            list: Una lista de IDs de obras (enteros) o una lista vacía.
+        """
+        
+        data = self.conexion_api("/search")
         if data and "objectIDs" in data:
             return data["objectIDs"]
         return []
+    def buscar_objeto_por_nacionalidad(self, query):
+        """
+        Realiza una búsqueda general de obras de arte por nacionalidad del autor.
 
+        Args:
+            query (str): La palabra clave para buscar obras.
+
+        Returns:
+            list: Una lista de IDs de obras (enteros) o una lista vacía.
+        """
+        data = self.conexion_api("/search?artistOrCulture=true&q="+query)
+        if data and "objectIDs" in data:
+            return data["objectIDs"]
+        return []
+    def buscar_objeto_por_autor(self, query):
+        """
+        Realiza una búsqueda general de obras de arte por nombre del autor.
+
+        Args:
+            query (str): La palabra clave para buscar obras.
+
+        Returns:
+            list: Una lista de IDs de obras (enteros) o una lista vacía.
+        """
+        data = self.conexion_api("/search?artistOrCulture=true&q="+query)
+        if data and "objectIDs" in data:
+            return data["objectIDs"]
+        return []
+    
     def obtener_detalles_objeto(self, object_id):
+        """
+        Obtiene los detalles completos de una obra de arte por su ID.
+
+        Args:
+            object_id (int): El ID de la obra de arte.
+
+        Returns:
+            ObraDeArte: Un objeto `ObraDeArte` con los detalles o None si no se encuentra.
+        """
         data = self.conexion_api(f"/objects/{object_id}")
         if data and data.get("objectID"):
             obra_de_arte = ObraDeArte(
@@ -148,6 +282,12 @@ class MetroArtAPIClient:
         return None
 
 def buscar_por_departamento(client):
+    """
+    Permite al usuario buscar y listar obras de arte por departamento.
+
+    Args:
+        client (MetroArtAPIClient): Una instancia del cliente de la API.
+    """
     departamentos = client.obtener_apartamentos()
     if not departamentos:
         print("No se pudieron obtener los departamentos")
@@ -182,37 +322,45 @@ def buscar_por_departamento(client):
         print("introduzca una opcion correcta")
     
 def buscar_por_nacionalidad(client):
-    nacionalidad = input("Ingrese la nacionalidad del autor (ej. 'American'): ").strip()
+    """
+    Permite al usuario buscar y filtrar obras por la nacionalidad del artista.
+
+    Args:
+        client (MetroArtAPIClient): Una instancia del cliente de la API.
+    """
+    nacionalidad = input("Ingrese la nacionalidad del autor: ").strip()
     if not nacionalidad:
         print("Debe ingresar una nacionalidad.")
         return
-
+    nacionalidad_lower = nacionalidad.lower()
     print(f"\nBuscando obras de artistas con nacionalidad '{nacionalidad}'...")
-    query = f"artistNationality={nacionalidad}"
-    object_ids = client.buscar_objeto_por_id(query)
+    object_ids = client.buscar_objeto_por_nacionalidad(nacionalidad_lower)
     
     if not object_ids:
         print("No se encontraron obras para esa nacionalidad.")
         return
-
     print(f"Se encontraron {len(object_ids)} obras. Mostrando las primeras 20:")
-    for obj_id in object_ids[:20]:
-        obra = client.obtener_detalles_objeto(obj_id)
-        if obra:
-            print("---------------------------------")
-            print(obra)
+    for obra_filtrada in object_ids[:20]:
+        filtrado= client.obtener_detalles_objeto(obra_filtrada)
+        print("---------------------------------")
+        print(filtrado)
     print("-------------------------------")
 
 
 def buscar_por_autor(client):
+    """
+    Permite al usuario buscar obras de arte por el nombre del autor.
+
+    Args:
+        client (MetroArtAPIClient): Una instancia del cliente de la API.
+    """
     autor = input("Ingrese el nombre del autor: ").strip()
     if not autor:
         print("Debe ingresar un nombre de autor.")
         return
 
     print(f"\nBuscando obras de '{autor}'...")
-    query = f"artistOrCulture=true&q={autor}"
-    object_ids = client.buscar_objeto_por_id(query)
+    object_ids = client.buscar_objeto_por_autor(autor)
     
     if not object_ids:
         print(f"No se encontraron obras para el autor '{autor}'.")
@@ -227,6 +375,12 @@ def buscar_por_autor(client):
     print("-----------------------" )
     
 def mostrar_detalles_obra(client):
+    """
+    Permite al usuario ver los detalles completos de una obra y su imagen por ID.
+
+    Args:
+        client (MetroArtAPIClient): Una instancia del cliente de la API.
+    """
     try:
         obra_id = int(input("Ingrese el ID de la obra de arte: "))
         print(f"\nBuscando detalles de la obra con ID {obra_id}...")
@@ -246,9 +400,11 @@ def mostrar_detalles_obra(client):
             print(f"No se encontraron detalles para la obra con ID {obra_id}.")
     except ValueError:
         print("Entrada no válida. Por favor, ingrese un ID numérico.")
-   
-def mostrar_menu():
     
+def mostrar_menu():
+    """
+    Muestra el menú principal de opciones de la aplicación al usuario.
+    """
     print("----------METROART--------")
 
     print("\n--- Catálogo MetroArt ---")
@@ -260,7 +416,12 @@ def mostrar_menu():
     print("--------------------------")
 
 def main():
+    """
+    La función principal que ejecuta el bucle del programa.
     
+    Inicializa el cliente de la API y gestiona la interacción del usuario
+    a través del menú principal.
+    """
     creando_objetos = MetroArtAPIClient()
     while True:
         mostrar_menu()
