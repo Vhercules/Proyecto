@@ -203,6 +203,30 @@ def buscar_por_nacionalidad(client):
             print(obra)
     print("-------------------------------")
 
+
+def buscar_por_autor(client):
+    autor = input("Ingrese el nombre del autor: ").strip()
+    if not autor:
+        print("Debe ingresar un nombre de autor.")
+        return
+
+    print(f"\nBuscando obras de '{autor}'...")
+    query = f"artistOrCulture=true&q={autor}"
+    object_ids = client.buscar_objeto_por_id(query)
+    
+    if not object_ids:
+        print(f"No se encontraron obras para el autor '{autor}'.")
+        return
+
+    print(f"Se encontraron {len(object_ids)} obras. Mostrando las primeras 20:")
+    for obj_id in object_ids[:20]:
+        obra = client.obtener_detalles_objeto(obj_id)
+        if obra:
+            print("---------------------------------")
+            print(obra)
+    print("-----------------------" )
+    
+   
 def mostrar_menu():
     
     print("----------METROART--------")
@@ -227,7 +251,7 @@ def main():
             buscar_por_nacionalidad(creando_objetos)
             print("")
         elif opcion == '3':
-            #buscar_por_autor()
+            buscar_por_autor(creando_objetos)
             print("")
         elif opcion == '4':
             #mostrar_detalles_obra()
